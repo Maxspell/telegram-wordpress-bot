@@ -1,0 +1,26 @@
+# Node.js ignore rules
+
+# Logs
+logs/
+*.log
+
+# Node.js build files
+node_modules/
+build/
+dist/
+
+# Dependencies
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Other
+.env
+coverage/
