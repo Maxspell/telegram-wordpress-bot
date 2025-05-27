@@ -70,10 +70,10 @@ class ValidationService {
         }
 
         // Дополнительные проверки
-        if (cleanPhone.startsWith('+7')) {
-            return cleanPhone.length === 12; // +7XXXXXXXXXX
-        } else if (cleanPhone.startsWith('8')) {
-            return cleanPhone.length === 11; // 8XXXXXXXXXX
+        if (cleanPhone.startsWith('+38')) {
+            return cleanPhone.length === 13; // +38XXXXXXXXXX
+        } else if (cleanPhone.startsWith('0')) {
+            return cleanPhone.length === 11; // 0XXXXXXXXXX
         }
 
         return false;
@@ -93,9 +93,9 @@ class ValidationService {
         
         // Приводим к формату +7XXXXXXXXXX
         if (cleanPhone.startsWith('8')) {
-            cleanPhone = '+7' + cleanPhone.substring(1);
-        } else if (!cleanPhone.startsWith('+7')) {
-            cleanPhone = '+7' + cleanPhone;
+            cleanPhone = '+38' + cleanPhone.substring(1);
+        } else if (!cleanPhone.startsWith('+38')) {
+            cleanPhone = '+38' + cleanPhone;
         }
 
         return cleanPhone;
