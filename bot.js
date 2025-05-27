@@ -190,7 +190,7 @@ class TelegramBot {
 
             await ctx.reply(
                 '❌ Будь ласка, введіть номер телефону.\n' +
-                'Формат: +8XXXXXXXXXX или 8XXXXXXXXXX\n' +
+                'Формат: +38XXXXXXXXXX или 8XXXXXXXXXX\n' +
                 `Спроба ${ctx.session.attempts} з 3.`
             );
             return;
