@@ -1,9 +1,10 @@
+const logger = require('../utils/logger');
 class ValidationService {
     constructor() {
         // Регулярные выражения для валидации
         this.patterns = {
             email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            phone: /^(\+7|8)[\d\s\-\(\)]{10,15}$/,
+            phone: /^(\+380|0)\d{9}$/,
             name: /^[а-яёА-ЯЁa-zA-Z\s\-]{2,50}$/
         };
     }
@@ -65,15 +66,15 @@ class ValidationService {
         const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
         
         // Проверка базового формата
-        if (!this.patterns.phone.test(phone)) {
+        if (!this.patterns.phone.test(cleanPhone)) {
             return false;
         }
-
+        
         // Дополнительные проверки
-        if (cleanPhone.startsWith('+38')) {
-            return cleanPhone.length === 13; // +38XXXXXXXXXX
+        if (cleanPhone.startsWith('+380')) {
+            return cleanPhone.length === 13; // +380XXXXXXXXX
         } else if (cleanPhone.startsWith('0')) {
-            return cleanPhone.length === 11; // 0XXXXXXXXXX
+            return cleanPhone.length === 10; // 0XXXXXXXXX
         }
 
         return false;
