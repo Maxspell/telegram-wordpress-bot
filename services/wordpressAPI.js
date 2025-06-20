@@ -1,12 +1,15 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
+const { title } = require('process');
 
 class WordPressAPI {
     constructor() {
         this.baseURL = process.env.WORDPRESS_URL;
-        this.apiKey = process.env.WP_API_KEY;
-        this.apiSecret = process.env.WP_API_SECRET;
+        this.username = process.env.WP_USERNAME; // WordPress username
+        this.appPassword = process.env.WP_APP_PASSWORD; // Application password
+        // this.apiKey = process.env.WP_API_KEY;
+        // this.apiSecret = process.env.WP_API_SECRET;
         this.timeout = 10000; // 10 секунд
         
         // Настройка axios
@@ -28,12 +31,15 @@ class WordPressAPI {
         this.client.interceptors.request.use(
             (config) => {
                 // Добавляем HMAC подпись для безопасности
-                const timestamp = Date.now().toString();
-                const signature = this.generateSignature(config.data, timestamp);
+                // const timestamp = Date.now().toString();
+                // const signature = this.generateSignature(config.data, timestamp);
                 
-                config.headers['X-API-Key'] = this.apiKey;
-                config.headers['X-Timestamp'] = timestamp;
-                config.headers['X-Signature'] = signature;
+                // config.headers['X-API-Key'] = this.apiKey;
+                // config.headers['X-Timestamp'] = timestamp;
+                // config.headers['X-Signature'] = signature;
+
+                const credentials = Buffer.from(`${this.username}:${this.appPassword}`).toString('base64');
+                config.headers['Authorization'] = `Basic ${credentials}`;
 
                 logger.debug(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
                 return config;
@@ -87,16 +93,19 @@ class WordPressAPI {
         try {
             // Подготавливаем данные
             const payload = {
+                // telegram_id: userData.telegram_id,
+                // username: userData.username,
+                // first_name: userData.first_name,
+                // last_name: userData.last_name,
+                // name: userData.name,
+                // phone: userData.phone,
+                // email: userData.email,
+                // message: userData.message || '',
+                // source: 'telegram_bot',
+                // created_at: new Date().toISOString()
                 telegram_id: userData.telegram_id,
-                username: userData.username,
-                first_name: userData.first_name,
-                last_name: userData.last_name,
-                name: userData.name,
-                phone: userData.phone,
-                email: userData.email,
-                message: userData.message || '',
-                source: 'telegram_bot',
-                created_at: new Date().toISOString()
+                title: userData.name,
+                phone: userData.phone
             };
 
             // Валидация данных перед отправкой
@@ -104,9 +113,12 @@ class WordPressAPI {
                 throw new Error('Invalid submission data');
             }
 
-            const response = await this.client.post('/wp-json/telegram-bot/v1/submit', payload);
+            const response = await this.client.post('/wp-json/wp/v2/telegram_leads', payload);
 
-            if (response.data && response.data.success) {
+            logger.info(`Response data: ${JSON.stringify(response.data)}`);
+            logger.info(`Response status: ${response.status}`);
+
+            if (response.status >= 200 && response.status < 300) {
                 logger.info(`Successfully submitted data for telegram user ${userData.telegram_id}`);
                 return {
                     success: true,
@@ -118,7 +130,7 @@ class WordPressAPI {
             }
 
         } catch (error) {
-            logger.error('Error submitting data to WordPress:', error.message);
+            logger.error(`Error submitting data to WordPress: ${error.message}`);
             
             // Попытка повторной отправки через некоторое время
             if (error.code === 'ECONNABORTED' || error.response?.status >= 500) {
@@ -167,7 +179,7 @@ class WordPressAPI {
      * @returns {boolean}
      */
     validateSubmissionData(data) {
-        const requiredFields = ['telegram_id', 'name', 'phone'];
+        const requiredFields = ['telegram_id', 'title', 'phone'];
         
         for (const field of requiredFields) {
             if (!data[field]) {
@@ -184,6 +196,7 @@ class WordPressAPI {
 
         // Проверка телефона
         if (!this.isValidPhone(data.phone)) {
+            logger.error(`Invalid phone format: ${data.phone}`);
             logger.error('Invalid phone format');
             return false;
         }
@@ -207,7 +220,7 @@ class WordPressAPI {
      * @returns {boolean}
      */
     isValidPhone(phone) {
-        const phoneRegex = /^\+7\d{10}$/;
+        const phoneRegex = /^(\+380|0)\d{9}$/;
         return phoneRegex.test(phone);
     }
 
