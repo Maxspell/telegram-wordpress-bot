@@ -93,19 +93,12 @@ class WordPressAPI {
         try {
             // Подготавливаем данные
             const payload = {
-                // telegram_id: userData.telegram_id,
-                // username: userData.username,
-                // first_name: userData.first_name,
-                // last_name: userData.last_name,
-                // name: userData.name,
-                // phone: userData.phone,
-                // email: userData.email,
-                // message: userData.message || '',
-                // source: 'telegram_bot',
-                // created_at: new Date().toISOString()
                 telegram_id: userData.telegram_id,
                 title: userData.name,
-                phone: userData.phone
+                name: userData.name,
+                phone: userData.phone,
+                email: userData.email,
+                message: userData.message
             };
 
             // Валидация данных перед отправкой
